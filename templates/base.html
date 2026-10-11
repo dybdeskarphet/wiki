@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site_title }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ site_description }}{% endblock %}">
+
+  <!-- Sakura Dark Theme -->
+  <link rel="stylesheet" href="{{ root_prefix }}/css/sakura-dark.css">
+  <link rel="stylesheet" href="{{ root_prefix }}/css/custom.css">
+
+  <!-- Nerd Fonts Symbols (WebFont) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mshaugh/nerdfont-webfonts@v3.3.0/build/symbols-nerd-font.css">
+
+  <!-- Pygments Syntax Highlighting CSS -->
+  <style>
+    {{ pygments_css }}
+  </style>
+
+  <!-- MathJax for Mathematics (Stats & Data Science) -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body data-root="{{ root_prefix }}">
+
+  <!-- Header -->
+  <header class="site-header">
+    <a href="{{ root_prefix }}/index.html" class="site-title" title="{{ site_title }}" aria-label="{{ site_title }}">
+      {% include "logo.svg" %}
+    </a>
+
+    <div class="nav-actions">
+      <button id="search-trigger-btn" class="search-trigger" title="Quick Search (or press /)">
+        <span class="nf search-btn-icon">&#xF002;</span>
+        <span>Search</span>
+        <kbd>/</kbd>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer style="margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.8em; color: var(--text-muted); display: flex; justify-content: flex-end;">
+    <div>Built with <code>uv</code> by <code><a href="https://kavakci.dev">kavakci.dev</a></code></div>
+  </footer>
+
+  <!-- FZF Search Modal Overlay -->
+  <div id="fzf-backdrop" class="fzf-backdrop">
+    <div class="fzf-modal">
+      <div class="fzf-input-wrapper">
+        <span class="fzf-prompt">&gt;</span>
+        <input type="text" id="fzf-input" class="fzf-input" placeholder="Type to search notes and tags..." autocomplete="off" spellcheck="false">
+      </div>
+      <div class="fzf-results-island">
+        <ul id="fzf-results" class="fzf-results">
+          <!-- Injected via fzf-search.js -->
+        </ul>
+        <div class="fzf-footer">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> navigate &bull; <kbd>↵</kbd> open &bull; <kbd>Esc</kbd> close</span>
+          <span id="fzf-count">0/0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ root_prefix }}/js/fzf-search.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

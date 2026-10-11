@@ -1,0 +1,35 @@
+# Build output & distributions
+build/
+dist/
+wheels/
+*.egg-info
+
+# Python artifacts
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+
+# Environment variables & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor & IDE configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs & temporary files
+*.log

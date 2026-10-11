@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }} | {{ site_title }}{% endblock %}
+{% block description %}{{ note.description or note.excerpt }}{% endblock %}
+
+{% block content %}
+<article>
+  <!-- Note Header (Title, Date & Tags) -->
+  <header class="note-header">
+    <h1 class="note-title">{{ note.title }}</h1>
+
+    {% if note.date or note.tags %}
+    <div class="note-meta">
+      {% if note.date %}
+      <span class="note-meta-date">
+        <span class="nf meta-date-icon">&#xF073;</span>
+        <time datetime="{{ note.date }}">{{ note.date }}</time>
+      </span>
+      {% endif %}
+
+      {% if note.date and note.tags %}
+      <span class="note-meta-divider" aria-hidden="true">&bull;</span>
+      {% endif %}
+
+      {% if note.tags %}
+      <div class="note-meta-tags">
+        {% for t in note.tags %}
+        <a href="{{ root_prefix }}/index.html?tags={{ t }}" class="tag header-tag">#{{ t }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </header>
+
+  <!-- Table of Contents (if available) -->
+  {% if note.toc %}
+  <details class="toc-box">
+    <summary>Table of Contents</summary>
+    {{ note.toc | safe }}
+  </details>
+  {% endif %}
+
+  <!-- Note Body / Image Viewer -->
+  <div class="note-content">
+    {% if note.seadragon_images %}
+    <!-- OpenSeadragon Image Viewer -->
+    <div class="osd-viewer-container">
+      {% if note.seadragon_images | length > 1 %}
+      <div class="osd-selector-bar">
+        {% for img in note.seadragon_images %}
+        <button type="button" class="osd-tab-btn{% if loop.first %} active{% endif %}" onclick="switchOsdImage({{ loop.index0 }})">
+          <span class="nf">&#xF03E;</span> {{ img.title }}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div id="openseadragon-viewer" class="osd-viewport"></div>
+
+      <div class="osd-toolbar">
+        <div class="osd-toolbar-group">
+          <button type="button" id="osd-zoom-in" class="osd-btn" title="Zoom In (+)">
+            <span class="nf">&#xF00E;</span> Zoom In
+          </button>
+          <button type="button" id="osd-zoom-out" class="osd-btn" title="Zoom Out (-)">
+            <span class="nf">&#xF010;</span> Zoom Out
+          </button>
+          <button type="button" id="osd-reset" class="osd-btn" title="Reset View">
+            <span class="nf">&#xF0E2;</span> Reset
+          </button>
+        </div>
+
+        <div class="osd-toolbar-group">
+          <a id="osd-download" class="osd-btn" title="Download Image" download href="{{ note.seadragon_images[0].src }}" target="_blank">
+            <span class="nf">&#xF019;</span> Download
+          </a>
+          <button type="button" id="osd-fullscreen" class="osd-btn osd-btn-highlight" title="Toggle Full Page (or press Esc)">
+            <span class="nf" id="osd-fs-icon">&#xF0B2;</span> <span id="osd-fs-text">Full Page</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {{ note.html_content | safe }}
+  </div>
+
+  <!-- Bottom Back Navigation Button -->
+  <div class="note-footer-nav">
+    <a href="{{ root_prefix }}/index.html" class="back-btn"><span class="nf">&#xF060;</span> Back to Index</a>
+  </div>
+</article>
+{% endblock %}
+
+{% block scripts %}
+{% if note.seadragon_images %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
+<script>
+  const osdImages = {{ note.seadragon_images | tojson }};
+  let currentImageIndex = 0;
+  let viewer = null;
+
+  function initOsdViewer() {
+    if (!osdImages || osdImages.length === 0) return;
+
+    viewer = OpenSeadragon({
+      id: "openseadragon-viewer",
+      prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
+      tileSources: {
+        type: "image",
+        url: osdImages[0].src
+      },
+      showNavigationControl: false,
+      defaultZoomLevel: 1,
+      minZoomLevel: 0.15,
+      maxZoomPixelRatio: 4,
+      visibilityRatio: 1.0,
+      constrainDuringPan: true,
+      imageLoaderLimit: 2,
+      gestureSettingsMouse: {
+        scrollToZoom: true,
+        clickToZoom: true,
+        dblClickToZoom: true
+      },
+      gestureSettingsTouch: {
+        pinchToZoom: true,
+        flickEnabled: true
+      }
+    });
+
+    const resetView = (immediately) => {
+      if (!viewer || !viewer.viewport) return;
+      viewer.viewport.zoomTo(1, null, immediately);
+      const bounds = viewer.viewport.getBounds();
+      viewer.viewport.panTo(new OpenSeadragon.Point(0.5, bounds.height / 2), immediately);
+    };
+
+    viewer.addHandler("open", () => {
+      resetView(true);
+    });
+
+    const zoomInBtn = document.getElementById("osd-zoom-in");
+    const zoomOutBtn = document.getElementById("osd-zoom-out");
+    const resetBtn = document.getElementById("osd-reset");
+    const fullscreenBtn = document.getElementById("osd-fullscreen");
+
+    if (zoomInBtn) zoomInBtn.onclick = () => viewer && viewer.viewport.zoomBy(1.25);
+    if (zoomOutBtn) zoomOutBtn.onclick = () => viewer && viewer.viewport.zoomBy(0.8);
+    if (resetBtn) resetBtn.onclick = () => resetView(false);
+    if (fullscreenBtn) fullscreenBtn.onclick = toggleFullPage;
+
+    // Window resize handler to keep OpenSeadragon canvas calibrated
+    window.addEventListener("resize", () => {
+      if (viewer && viewer.viewport) {
+        viewer.viewport.resize();
+      }
+    });
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const container = document.querySelector(".osd-viewer-container");
+        if (container && (container.classList.contains("is-fullpage") || document.fullscreenElement)) {
+          toggleFullPage();
+        }
+      }
+    });
+  }
+
+  function updateFullPageUI(isFull) {
+    const fsIcon = document.getElementById("osd-fs-icon");
+    const fsText = document.getElementById("osd-fs-text");
+    const fsBtn = document.getElementById("osd-fullscreen");
+
+    if (isFull) {
+      if (fsIcon) fsIcon.innerHTML = "&#xF066;";
+      if (fsText) fsText.textContent = "Exit Full Page";
+      if (fsBtn) fsBtn.classList.add("active");
+    } else {
+      if (fsIcon) fsIcon.innerHTML = "&#xF0B2;";
+      if (fsText) fsText.textContent = "Full Page";
+      if (fsBtn) fsBtn.classList.remove("active");
+    }
+  }
+
+  function onFullscreenChange() {
+    const container = document.querySelector(".osd-viewer-container");
+    if (!container) return;
+
+    if (!document.fullscreenElement && container.classList.contains("is-fullpage")) {
+      container.classList.remove("is-fullpage");
+      document.body.style.overflow = "";
+      updateFullPageUI(false);
+      setTimeout(() => {
+        if (viewer && viewer.viewport) {
+          viewer.viewport.resize();
+        }
+      }, 50);
+    }
+  }
+
+  function toggleFullPage() {
+    const container = document.querySelector(".osd-viewer-container");
+    if (!container || !viewer) return;
+
+    const isFull = container.classList.contains("is-fullpage") || !!document.fullscreenElement;
+
+    if (!isFull) {
+      container.classList.add("is-fullpage");
+      document.body.style.overflow = "hidden";
+      updateFullPageUI(true);
+
+      if (container.requestFullscreen) {
+        container.requestFullscreen().catch(() => {});
+      }
+    } else {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      container.classList.remove("is-fullpage");
+      document.body.style.overflow = "";
+      updateFullPageUI(false);
+    }
+
+    // Refresh OpenSeadragon viewport
+    setTimeout(() => {
+      if (viewer && viewer.viewport) {
+        viewer.viewport.resize();
+      }
+    }, 100);
+  }
+
+  function switchOsdImage(index) {
+    if (!viewer || index < 0 || index >= osdImages.length) return;
+    currentImageIndex = index;
+
+    document.querySelectorAll('.osd-tab-btn').forEach((btn, i) => {
+      if (i === index) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+
+    const dlBtn = document.getElementById("osd-download");
+    if (dlBtn) dlBtn.href = osdImages[index].src;
+
+    viewer.open({
+      type: "image",
+      url: osdImages[index].src
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", initOsdViewer);
+</script>
+{% endif %}
+{% endblock %}

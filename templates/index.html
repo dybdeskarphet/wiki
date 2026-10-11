@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }}{% endblock %}
+
+{% block content %}
+<!-- Top Tag Filter Bar (Multi-Select with Expandable Overflow) -->
+<div class="tag-list" id="index-tag-list">
+  {% for tag, count in all_tags.items() %}
+  <button type="button" class="tag-btn{% if loop.index > 8 %} tag-overflow{% endif %}" data-tag="{{ tag }}" onclick="toggleTag('{{ tag }}')">
+    #{{ tag }} <span class="tag-count">({{ count }})</span>
+  </button>
+  {% endfor %}
+
+  {% if all_tags | length > 8 %}
+  <button type="button" id="toggle-tags-btn" class="tag-btn tag-expand-btn" onclick="toggleTagsExpand()">
+    <span class="nf" id="toggle-tags-icon">&#xF078;</span>
+    <span id="toggle-tags-text">More tags ({{ all_tags | length - 8 }})</span>
+  </button>
+  {% endif %}
+
+  <button type="button" id="clear-all-btn" class="tag-btn reset-btn" onclick="clearAllTags()">
+    <span class="nf reset-icon">&#xF00D;</span><span class="reset-text">Reset (<span id="active-tag-count">0</span>)</span>
+  </button>
+</div>
+
+<!-- Notes List (Desktop shows tags, Mobile hides them) -->
+<table class="notes-table" id="notes-table">
+  <thead>
+    <tr>
+      <th style="width: 55%;">Title</th>
+      <th class="in-row-tags-col" style="width: 30%;">Tags</th>
+      <th style="width: 15%; text-align: right;">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for note in notes %}
+    <tr class="note-row" data-tags="{{ note.tags | join(',') }}">
+      <td>
+        <a href="{{ root_prefix }}/{{ note.url }}" class="note-link">{{ note.title }}</a>
+      </td>
+      <td class="in-row-tags-col">
+        {% for t in note.tags %}
+        <span class="tag in-table-tag" onclick="toggleTag('{{ t }}')">#{{ t }}</span>
+        {% endfor %}
+      </td>
+      <td class="note-date">
+        {{ note.date or '—' }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Progressive Loading / Pagination Container -->
+<div id="pagination-container" class="pagination-container">
+  <button type="button" id="load-more-btn" class="load-more-btn" style="display: none;" onclick="loadMoreNotes()">
+    <span class="nf">&#xF078;</span> <span id="load-more-text">Show 25 more</span> (<span id="load-more-remaining">0</span> remaining)
+  </button>
+  <div id="no-notes-msg" class="no-notes-msg" style="display: none;">
+    No notes match the selected tags.
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Progressive Loading & Multi-Tag Filter State
+const PAGE_SIZE = 25;
+let visibleLimit = PAGE_SIZE;
+const activeTags = new Set();
+
+function applyTagFilters(resetPagination = false) {
+  if (resetPagination) {
+    visibleLimit = PAGE_SIZE;
+  }
+
+  const rows = document.querySelectorAll('.note-row');
+  let matchCount = 0;
+
+  rows.forEach(row => {
+    const rowTags = (row.getAttribute('data-tags') || '').split(',').filter(Boolean);
+
+    let matches = true;
+    for (const tag of activeTags) {
+      if (!rowTags.includes(tag)) {
+        matches = false;
+        break;
+      }
+    }
+
+    if (matches) {
+      matchCount++;
+      if (matchCount <= visibleLimit) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  // Handle Progressive Load More button
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  const remainingSpan = document.getElementById('load-more-remaining');
+  const loadMoreText = document.getElementById('load-more-text');
+  const noNotesMsg = document.getElementById('no-notes-msg');
+
+  if (matchCount > visibleLimit) {
+    const remaining = matchCount - visibleLimit;
+    const nextBatch = Math.min(PAGE_SIZE, remaining);
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display = 'inline-flex';
+      if (remainingSpan) remainingSpan.textContent = remaining;
+      if (loadMoreText) loadMoreText.textContent = `Show ${nextBatch} more`;
+    }
+  } else {
+    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+  }
+
+  if (noNotesMsg) {
+    noNotesMsg.style.display = matchCount === 0 ? 'block' : 'none';
+  }
+
+  // Update tag chip active states
+  document.querySelectorAll('#index-tag-list .tag-btn:not(.reset-btn):not(.tag-expand-btn)').forEach(btn => {
+    const tag = btn.getAttribute('data-tag');
+    if (activeTags.has(tag)) {
+      btn.classList.add('active');
+      if (!tagsExpanded && btn.classList.contains('tag-overflow')) {
+        toggleTagsExpand();
+      }
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // Reset button visibility
+  const resetBtn = document.getElementById('clear-all-btn');
+  const countSpan = document.getElementById('active-tag-count');
+  if (activeTags.size > 0) {
+    resetBtn.style.display = 'inline-flex';
+    countSpan.textContent = activeTags.size;
+  } else {
+    resetBtn.style.display = 'none';
+  }
+
+  // Update URL search parameters
+  const params = new URLSearchParams(window.location.search);
+  if (activeTags.size > 0) {
+    params.set('tags', Array.from(activeTags).join(','));
+  } else {
+    params.delete('tags');
+    params.delete('tag');
+  }
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.history.replaceState({}, '', newUrl);
+}
+
+function loadMoreNotes() {
+  visibleLimit += PAGE_SIZE;
+  applyTagFilters(false);
+}
+
+function toggleTag(tag) {
+  if (activeTags.has(tag)) {
+    activeTags.delete(tag);
+  } else {
+    activeTags.add(tag);
+  }
+  applyTagFilters(true);
+}
+
+let tagsExpanded = false;
+function toggleTagsExpand() {
+  tagsExpanded = !tagsExpanded;
+  const tagList = document.getElementById('index-tag-list');
+  const icon = document.getElementById('toggle-tags-icon');
+  const text = document.getElementById('toggle-tags-text');
+  if (!tagList) return;
+  if (tagsExpanded) {
+    tagList.classList.add('expanded');
+    if (icon) icon.innerHTML = '&#xF077;';
+    if (text) text.textContent = 'Fewer tags';
+  } else {
+    tagList.classList.remove('expanded');
+    if (icon) icon.innerHTML = '&#xF078;';
+    if (text) text.textContent = 'More tags ({{ all_tags | length - 8 }})';
+  }
+}
+
+function clearAllTags() {
+  activeTags.clear();
+  applyTagFilters(true);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const tagsParam = params.get('tags') || params.get('tag');
+  if (tagsParam) {
+    tagsParam.split(',').filter(Boolean).forEach(t => activeTags.add(t));
+  }
+  applyTagFilters(true);
+});
+</script>
+{% endblock %}
