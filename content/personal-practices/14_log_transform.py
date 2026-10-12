@@ -3,7 +3,7 @@ r"""
 ---
 title: "Log-Transform"
 date: 2026-10-11
-tags: [statistics, data science]
+tags: [statistics, logarithmic, lln, clt, normal-distribution]
 description: "..."
 ---
 """
