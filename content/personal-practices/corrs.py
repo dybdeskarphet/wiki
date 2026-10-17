@@ -3,7 +3,7 @@ r"""
 ---
 title: "Pearson vs. Spearman Correlation"
 date: 2026-10-17
-tags: [statistics, binomial, correlation, pearson, spearman]
+tags: [statistics, correlation, pearson, spearman, z-transform]
 description: "What is the difference between Pearson correlation and Spearman correlation."
 ---
 """
