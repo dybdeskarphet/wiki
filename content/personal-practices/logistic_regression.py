@@ -121,45 +121,35 @@ r"""
 """
 
 # %%
-p_candidates = np.linspace(0.05,0.95,100)
-computer_curvatures = []
-
-# %%
-for p in p_candidates:
-    ll_center = log_likelihood(p, sample)
-    ll_right  = log_likelihood(p + h, sample)
-    ll_left   = log_likelihood(p - h, sample)
-    second_deriv = (ll_right - 2 * ll_center + ll_left) / (h ** 2)
-    observed_info = -second_deriv
-    computer_curvatures.append(observed_info / n)
-
-computer_curvatures = np.array(computer_curvatures)
+p_candidates = np.linspace(0.05, 0.95, 200)
+fisher_curvatures = 1 / (p_candidates * (1 - p_candidates))
 
 # %%
 fig, ax = plt.subplots(figsize=(8, 4))
-ax.plot(p_candidates, computer_curvatures)
-ax.set_xlabel("Probabilites")
+ax.plot(p_candidates, fisher_curvatures)
+ax.set_xlabel("Probabilities")
 ax.set_ylabel("Fisher Information")
 plt.show()
 
 # %%
-mask = (p_candidates >= 0.5) & (p_candidates <= TRUE_P)
-area = simpson(computer_curvatures[mask], x=p_candidates[mask])
+p_exact = np.linspace(0.5, TRUE_P, 200)
+exact_curvatures = 1 / (p_exact * (1 - p_exact))
 
-# %%
+area_exact = simpson(exact_curvatures, x=p_exact)
 formulatic_log_odds = np.log(TRUE_P / (1 - TRUE_P))
 
 # %%
 fig, ax = plt.subplots(figsize=(8, 4))
-ax.plot(p_candidates, computer_curvatures, color="navy")
+ax.plot(p_candidates, fisher_curvatures, color="navy")
 ax.fill_between(
-    p_candidates[mask],
-    computer_curvatures[mask],
+    p_exact,
+    exact_curvatures,
     color="crimson",
     alpha=0.4,
-    label=f"Area = {area:.4f}"
+    label=f"Exact Area = {area_exact:.4f}"
 )
-ax.axvline(0.5, color="gray", linestyle="--", label="0.5")
+
+ax.axvline(0.5, color="gray", linestyle="--", label="0.5 Baseline")
 ax.axvline(TRUE_P, color="crimson", linestyle=":", label=f"TRUE_P = {TRUE_P}")
 ax.set_xlabel("Probabilities")
 ax.set_ylabel("Fisher Information")
@@ -167,5 +157,5 @@ ax.legend()
 plt.show()
 
 # %%
-print("Area under curve:", area)
+print("Area under curve:", area_exact)
 print("Formulatic log-odds:", formulatic_log_odds)
