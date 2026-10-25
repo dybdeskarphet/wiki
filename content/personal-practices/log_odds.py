@@ -63,6 +63,9 @@ The likelihood function actually serves to provide information about what probab
 
 $$
 \text{Probability funciton: } P(x \mid \theta)
+$$
+
+$$
 \text{Likelihood funciton: } \mathcal{L}(\theta \mid x) = P(x \mid \theta)
 $$
 
@@ -167,6 +170,7 @@ r"""
 First, let’s look at the plots we obtain with low n and high n.
 """
 
+# %%
 ll_curve_normal    = compute_log_lik_curve(data_normal, p_grid)
 ll_curve_high_size = compute_log_lik_curve(data_high_size, p_grid)
 
