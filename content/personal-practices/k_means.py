@@ -100,6 +100,7 @@ For each cluster: The average of the x-coordinates of all points within it becom
 Once we’ve done this, we’ve completed our first iteration. The next step will be to recalculate the nearest points based on the new centroid coordinates. And this iteration will continue until the centroid coordinates remain virtually unchanged.
 """
 
+# %%
 for iteration in range(50):
     assignments = []
 
