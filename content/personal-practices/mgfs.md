@@ -6,9 +6,9 @@ description: "Handwritten derivations of power series, generating functions, and
 viewer: seadragon
 images:
   - title: "Power Series"
-    src: "07_power_series.jpg"
+    src: "power_series.jpg"
   - title: "Generating Functions"
-    src: "07_gen_func.jpg"
+    src: "gen_func.jpg"
   - title: "Moment Generating Functions"
-    src: "07_mgfs.jpg"
+    src: "mgfs.jpg"
 ---
