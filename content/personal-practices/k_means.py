@@ -1,9 +1,9 @@
 # %% [markdown]
 r"""
 ---
-title: "K-means"
+title: "K-means and K-means++"
 date: 2026-10-31
-tags: [statistics, k-means, ml]
+tags: [statistics, k-means, ml, clustering]
 description: "Understanding how K-means and K-means++ works"
 ---
 """
