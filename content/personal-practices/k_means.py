@@ -197,9 +197,6 @@ while len(centers_plus) < k:
 centers_plus = pd.DataFrame(centers_plus)[["x", "y"]].reset_index(drop=True)
 centers_plus, real_centers
 
-
-# %%
-
 # %% [markdown]
 r"""
 So, if we hadn’t used Euclidean distance when calculating distance, or the mean when recalculating the center, what other methods would we have encountered? To find the answer, I recommend taking a closer look at the following topics:
