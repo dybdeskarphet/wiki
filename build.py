@@ -316,7 +316,6 @@ def build_wiki(execute: bool = True):
 
     notes = []
     categories_count = {}
-    all_tags_count = {}
 
     # Scan content folder
     for file_path in sorted(CONTENT_DIR.rglob("*")):
@@ -344,15 +343,15 @@ def build_wiki(execute: bool = True):
         else:
             continue
 
+        category_title = category.replace("-", " ").replace("_", " ").title()
         note_data["category"] = category
+        note_data["category_title"] = category_title
         note_data["slug"] = file_path.stem
         out_rel_url = f"{category}/{file_path.stem}.html"
         note_data["url"] = out_rel_url
 
-        # Tally counts
+        # Tally category counts
         categories_count[category] = categories_count.get(category, 0) + 1
-        for t in note_data["tags"]:
-            all_tags_count[t] = all_tags_count.get(t, 0) + 1
 
         # Output note HTML
         dest_html = DIST_DIR / out_rel_url
@@ -376,8 +375,15 @@ def build_wiki(execute: bool = True):
     # Sort notes by date (descending) or title
     notes.sort(key=lambda n: (str(n.get("date") or "0000-00-00"), n["title"]), reverse=True)
 
-    # Sort tags by frequency descending
-    all_tags_sorted = dict(sorted(all_tags_count.items(), key=lambda item: item[1], reverse=True))
+    # Prepare categories list for index filtering
+    all_categories = [
+        {
+            "slug": cat,
+            "title": cat.replace("-", " ").replace("_", " ").title(),
+            "count": count
+        }
+        for cat, count in sorted(categories_count.items())
+    ]
 
     # Build index.html
     rendered_index = index_template.render(
@@ -387,8 +393,7 @@ def build_wiki(execute: bool = True):
         root_prefix=".",
         has_math=False,
         notes=notes,
-        categories=categories_count,
-        all_tags=all_tags_sorted
+        all_categories=all_categories
     )
     (DIST_DIR / "index.html").write_text(rendered_index, encoding="utf-8")
 
@@ -398,7 +403,8 @@ def build_wiki(execute: bool = True):
         search_index.append({
             "title": n["title"],
             "url": n["url"],
-            "tags": n["tags"],
+            "category": n["category"],
+            "category_title": n["category_title"],
             "description": n.get("description") or "",
             "content": n["raw_text"]
         })

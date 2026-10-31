@@ -233,142 +233,138 @@ pre *, code * {
   color: var(--base-03);
 }
 
-/* Tag Bar & Tag Chips */
-.tag-list {
+/* ========================================================
+   Category Navigation Bar (Directory Monospace Tabs)
+   ======================================================== */
+.category-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0 1.5rem 0;
+  gap: 0.45rem 0.65rem;
+  margin: 1rem 0 1.6rem 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--base-02);
 }
 
-.tag, .tag-btn {
+.cat-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.28rem 0.65rem !important;
+  border-radius: 4px;
+  color: var(--base-08) !important;
+  font-family: var(--code-font) !important;
+  font-size: 0.86em !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: var(--base-01);
-  border: 1px solid var(--base-02) !important;
-  border-bottom: 1px solid var(--base-02) !important;
-  color: var(--green) !important;
-  font-size: 0.88em;
-  line-height: 1 !important;
-  height: 1.95rem;
-  padding: 0 0.65rem;
-  border-radius: 4px;
+  gap: 0.35rem;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.cat-btn .cat-folder-slash {
+  color: var(--base-05) !important;
+  transition: color 0.15s ease;
+}
+
+.cat-btn:hover {
+  color: var(--base-14) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.cat-btn:hover .cat-folder-slash {
+  color: var(--yellow) !important;
+}
+
+.cat-btn.active {
+  background: var(--base-02) !important;
+  color: var(--yellow) !important;
+  font-weight: 500;
+}
+
+.cat-btn.active .cat-folder-slash {
+  color: var(--yellow) !important;
+}
+
+.cat-count {
+  font-size: 0.8em;
+  color: var(--base-07);
+  font-family: var(--code-font);
+  transition: color 0.15s ease;
+}
+
+.cat-btn:hover .cat-count {
+  color: var(--base-12);
+}
+
+.cat-btn.active .cat-count {
+  color: var(--yellow);
+  opacity: 0.85;
+}
+
+/* ========================================================
+   In-Table Category Column (Clean Directory Monospace)
+   ======================================================== */
+.in-row-cat-col {
+  vertical-align: middle;
+  font-family: var(--code-font);
+  font-size: 0.82em;
+}
+
+.cat-folder-name {
+  color: var(--base-08);
   text-decoration: none !important;
   cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s ease;
-  box-sizing: border-box;
-  vertical-align: middle;
-  gap: 0.35rem;
-}
-
-.tag:hover, .tag-btn:hover {
-  background: var(--base-02);
-  border-color: var(--green) !important;
-  border-bottom-color: var(--green) !important;
-  color: var(--base-14) !important;
-}
-
-.tag.active, .tag-btn.active {
-  background: var(--base-02);
-  border-color: var(--yellow) !important;
-  border-bottom-color: var(--yellow) !important;
-  color: var(--yellow) !important;
-  font-weight: 600;
-}
-
-.tag-count {
-  color: var(--base-08);
-  font-size: 0.85em;
-  line-height: 1;
-}
-
-/* Reset Button */
-.tag-btn.reset-btn {
-  background: transparent !important;
-  border: 1px dashed var(--orange) !important;
-  border-bottom: 1px dashed var(--orange) !important;
-  color: var(--orange) !important;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-}
-
-.tag-btn.reset-btn:hover {
-  background: var(--base-01) !important;
-  border-color: var(--red) !important;
-  border-bottom-color: var(--red) !important;
-  color: var(--red) !important;
-}
-
-.tag-btn.reset-btn .reset-icon,
-.tag-btn.reset-btn .icon,
-.tag-btn.reset-btn .nf {
+  transition: color 0.15s ease;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.85em;
-  line-height: 1;
-  position: relative;
-  top: 0;
+  gap: 0.15rem;
 }
 
-.tag-btn.reset-btn .reset-text {
-  display: inline-flex;
-  align-items: center;
-  line-height: 1;
-}
-
-/* Expandable Tag Bar */
-.tag-list .tag-overflow {
-  display: none !important;
-}
-
-.tag-list.expanded .tag-overflow {
-  display: inline-flex !important;
-}
-
-.tag-btn.tag-expand-btn {
-  background: var(--base-01) !important;
-  border: 1px dashed var(--base-04) !important;
-  border-bottom: 1px dashed var(--base-04) !important;
-  color: var(--base-09) !important;
-  font-size: 0.88em;
-  gap: 0.35rem;
-  cursor: pointer;
+.cat-folder-name .cat-folder-slash {
+  color: var(--base-05);
   user-select: none;
-  align-items: center;
-  justify-content: center;
 }
 
-.tag-btn.tag-expand-btn:hover {
-  background: var(--base-02) !important;
-  border-color: var(--yellow) !important;
-  border-bottom-color: var(--yellow) !important;
-  color: var(--yellow) !important;
+.cat-folder-name:hover {
+  color: var(--yellow);
 }
 
-.tag-btn.tag-expand-btn .icon,
-.tag-btn.tag-expand-btn .nf {
+.cat-folder-name:hover .cat-folder-slash {
+  color: var(--yellow);
+}
+
+/* Note Header Category Breadcrumb (Matches Directory Column) */
+a.note-breadcrumb,
+a.note-breadcrumb:link,
+a.note-breadcrumb:visited {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.15rem;
+  color: var(--base-08) !important;
+  font-family: var(--code-font);
   font-size: 0.85em;
-  line-height: 1;
-  position: relative;
-  top: 0;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  transition: color 0.15s ease;
 }
 
-/* In-table tags (visible on desktop) */
-.in-table-tag {
-  font-size: 0.8em;
-  padding: 0.15rem 0.5rem;
-  cursor: pointer;
-  margin-right: 0.3rem;
-  margin-bottom: 0.2rem;
+a.note-breadcrumb .cat-folder-slash {
+  color: var(--base-05) !important;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+a.note-breadcrumb:hover,
+a.note-breadcrumb:focus {
+  color: var(--yellow) !important;
+  text-decoration: none !important;
+}
+
+a.note-breadcrumb:hover .cat-folder-slash,
+a.note-breadcrumb:focus .cat-folder-slash {
+  color: var(--yellow) !important;
 }
 
 /* Polished Note Header (Title, Date, Tags) */
@@ -415,32 +411,9 @@ pre *, code * {
   user-select: none;
 }
 
-.note-meta-tags {
+.note-meta-category {
   display: inline-flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-}
-
-.tag.header-tag {
-  font-size: 0.8em;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  background: var(--base-01);
-  border: 1px solid var(--base-02);
-  border-bottom: 1px solid var(--base-02) !important;
-  color: var(--base-10) !important;
-  font-family: var(--code-font);
-  text-decoration: none !important;
-  line-height: normal;
-  transition: all 0.15s ease;
-}
-
-.tag.header-tag:hover {
-  background: var(--base-02);
-  border-color: var(--green) !important;
-  border-bottom-color: var(--green) !important;
-  color: var(--green) !important;
 }
 
 /* Clean Jupyter Cell Styling (Remove In/Out prompts & style outputs) */
@@ -1203,47 +1176,31 @@ a.osd-btn.active {
     padding: 2px 6px !important;
   }
 
-  /* Tag Chips - Balanced & Proportionate */
-  .tag-list {
-    gap: 0.5rem;
-    margin: 0.6rem 0 1.5rem 0;
+  /* Category Navigation - Mobile swipeable tabs */
+  .category-nav {
+    gap: 1.1rem;
+    margin: 0.8rem 0 1.4rem 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.65rem;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    scrollbar-width: none;
   }
 
-  .tag, .tag-btn {
-    font-size: 15px !important;
-    line-height: 1 !important;
-    height: 2.25rem !important;
-    padding: 0 12px !important;
-    border-radius: 5px;
-    touch-action: manipulation;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    gap: 0.35rem;
+  .category-nav::-webkit-scrollbar {
+    display: none;
   }
 
-  .tag-count {
-    font-size: 13px !important;
-    margin-left: 0;
+  .cat-btn {
+    font-size: 14px !important;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  .tag-btn.reset-btn {
-    height: 2.25rem !important;
-    padding: 0 12px !important;
-    font-size: 15px !important;
-    border: 1px dashed var(--orange) !important;
-    border-bottom: 1px dashed var(--orange) !important;
-  }
-
-  .tag-btn.tag-expand-btn {
-    height: 2.25rem !important;
-    padding: 0 12px !important;
-    font-size: 15px !important;
-  }
-
-  /* HIDE row tags ONLY on mobile (desktop keeps them!) */
-  .in-row-tags-col {
+  /* HIDE category column ONLY on mobile */
+  .in-row-tags-col,
+  .in-row-cat-col {
     display: none !important;
   }
 

@@ -3,45 +3,35 @@
 {% block title %}{{ site_title }}{% endblock %}
 
 {% block content %}
-<!-- Top Tag Filter Bar (Multi-Select with Expandable Overflow) -->
-<div class="tag-list" id="index-tag-list">
-  {% for tag, count in all_tags.items() %}
-  <button type="button" class="tag-btn{% if loop.index > 8 %} tag-overflow{% endif %}" data-tag="{{ tag }}" onclick="toggleTag('{{ tag }}')">
-    #{{ tag }} <span class="tag-count">({{ count }})</span>
+<!-- Category Navigation (Directory Tabs) -->
+<div class="category-nav" id="category-nav">
+  <button type="button" class="cat-btn active" data-category="all" onclick="filterCategory('all')">
+    <span>all</span> <span class="cat-count">({{ notes | length }})</span>
+  </button>
+  {% for cat in all_categories %}
+  <button type="button" class="cat-btn" data-category="{{ cat.slug }}" onclick="filterCategory('{{ cat.slug }}')">
+    <span class="cat-folder-slash">/</span><span>{{ cat.slug }}</span> <span class="cat-count">({{ cat.count }})</span>
   </button>
   {% endfor %}
-
-  {% if all_tags | length > 8 %}
-  <button type="button" id="toggle-tags-btn" class="tag-btn tag-expand-btn" onclick="toggleTagsExpand()">
-    <svg class="icon" id="toggle-tags-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-    <span id="toggle-tags-text">More tags ({{ all_tags | length - 8 }})</span>
-  </button>
-  {% endif %}
-
-  <button type="button" id="clear-all-btn" class="tag-btn reset-btn" onclick="clearAllTags()">
-    <svg class="icon reset-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg><span class="reset-text">Reset (<span id="active-tag-count">0</span>)</span>
-  </button>
 </div>
 
-<!-- Notes List (Desktop shows tags, Mobile hides them) -->
+<!-- Notes List -->
 <table class="notes-table" id="notes-table">
   <thead>
     <tr>
-      <th style="width: 55%;">Title</th>
-      <th class="in-row-tags-col" style="width: 30%;">Tags</th>
+      <th style="width: 58%;">Title</th>
+      <th class="in-row-cat-col" style="width: 27%;">Directory</th>
       <th style="width: 15%; text-align: right;">Date</th>
     </tr>
   </thead>
   <tbody>
     {% for note in notes %}
-    <tr class="note-row" data-tags="{{ note.tags | join(',') }}">
+    <tr class="note-row" data-category="{{ note.category }}">
       <td>
         <a href="{{ root_prefix }}/{{ note.url }}" class="note-link">{{ note.title }}</a>
       </td>
-      <td class="in-row-tags-col">
-        {% for t in note.tags %}
-        <span class="tag in-table-tag" onclick="toggleTag('{{ t }}')">#{{ t }}</span>
-        {% endfor %}
+      <td class="in-row-cat-col">
+        <span class="cat-folder-name" onclick="filterCategory('{{ note.category }}')" title="Filter by {{ note.category_title }}"><span class="cat-folder-slash">/</span>{{ note.category }}</span>
       </td>
       <td class="note-date" style="text-align: right;">
         {{ note.date or '—' }}
@@ -51,156 +41,54 @@
   </tbody>
 </table>
 
-<!-- Progressive Loading / Pagination Container -->
-<div id="pagination-container" class="pagination-container">
-  <button type="button" id="load-more-btn" class="load-more-btn" style="display: none;" onclick="loadMoreNotes()">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg> <span id="load-more-text">Show 25 more</span> (<span id="load-more-remaining">0</span> remaining)
-  </button>
-  <div id="no-notes-msg" class="no-notes-msg" style="display: none;">
-    No notes match the selected tags.
-  </div>
+<div id="no-notes-msg" class="no-notes-msg" style="display: none;">
+  No notes in this category yet.
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Progressive Loading & Multi-Tag Filter State
-const PAGE_SIZE = 25;
-let visibleLimit = PAGE_SIZE;
-const activeTags = new Set();
+let currentCategory = 'all';
 
-function applyTagFilters(resetPagination = false) {
-  if (resetPagination) {
-    visibleLimit = PAGE_SIZE;
-  }
+function filterCategory(cat) {
+  currentCategory = cat;
 
-  const rows = document.querySelectorAll('.note-row');
-  let matchCount = 0;
-
-  rows.forEach(row => {
-    const rowTags = (row.getAttribute('data-tags') || '').split(',').filter(Boolean);
-
-    let matches = true;
-    for (const tag of activeTags) {
-      if (!rowTags.includes(tag)) {
-        matches = false;
-        break;
-      }
-    }
-
-    if (matches) {
-      matchCount++;
-      if (matchCount <= visibleLimit) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    } else {
-      row.style.display = 'none';
-    }
+  // Update button active state
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.category === cat);
   });
 
-  // Handle Progressive Load More button
-  const loadMoreBtn = document.getElementById('load-more-btn');
-  const remainingSpan = document.getElementById('load-more-remaining');
-  const loadMoreText = document.getElementById('load-more-text');
+  // Filter table rows
+  const rows = document.querySelectorAll('.note-row');
+  let matchCount = 0;
+  rows.forEach(row => {
+    const rowCat = row.getAttribute('data-category');
+    const matches = (cat === 'all' || rowCat === cat);
+    row.style.display = matches ? '' : 'none';
+    if (matches) matchCount++;
+  });
+
   const noNotesMsg = document.getElementById('no-notes-msg');
-
-  if (matchCount > visibleLimit) {
-    const remaining = matchCount - visibleLimit;
-    const nextBatch = Math.min(PAGE_SIZE, remaining);
-    if (loadMoreBtn) {
-      loadMoreBtn.style.display = 'inline-flex';
-      if (remainingSpan) remainingSpan.textContent = remaining;
-      if (loadMoreText) loadMoreText.textContent = `Show ${nextBatch} more`;
-    }
-  } else {
-    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-  }
-
   if (noNotesMsg) {
     noNotesMsg.style.display = matchCount === 0 ? 'block' : 'none';
   }
 
-  // Update tag chip active states
-  document.querySelectorAll('#index-tag-list .tag-btn:not(.reset-btn):not(.tag-expand-btn)').forEach(btn => {
-    const tag = btn.getAttribute('data-tag');
-    if (activeTags.has(tag)) {
-      btn.classList.add('active');
-      if (!tagsExpanded && btn.classList.contains('tag-overflow')) {
-        toggleTagsExpand();
-      }
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-
-  // Reset button visibility
-  const resetBtn = document.getElementById('clear-all-btn');
-  const countSpan = document.getElementById('active-tag-count');
-  if (activeTags.size > 0) {
-    resetBtn.style.display = 'inline-flex';
-    countSpan.textContent = activeTags.size;
+  // Sync URL query param ?category=...
+  const url = new URL(window.location);
+  if (cat === 'all') {
+    url.searchParams.delete('category');
   } else {
-    resetBtn.style.display = 'none';
+    url.searchParams.set('category', cat);
   }
-
-  // Update URL search parameters
-  const params = new URLSearchParams(window.location.search);
-  if (activeTags.size > 0) {
-    params.set('tags', Array.from(activeTags).join(','));
-  } else {
-    params.delete('tags');
-    params.delete('tag');
-  }
-  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-  window.history.replaceState({}, '', newUrl);
-}
-
-function loadMoreNotes() {
-  visibleLimit += PAGE_SIZE;
-  applyTagFilters(false);
-}
-
-function toggleTag(tag) {
-  if (activeTags.has(tag)) {
-    activeTags.delete(tag);
-  } else {
-    activeTags.add(tag);
-  }
-  applyTagFilters(true);
-}
-
-let tagsExpanded = false;
-function toggleTagsExpand() {
-  tagsExpanded = !tagsExpanded;
-  const tagList = document.getElementById('index-tag-list');
-  const icon = document.getElementById('toggle-tags-icon');
-  const text = document.getElementById('toggle-tags-text');
-  if (!tagList) return;
-  if (tagsExpanded) {
-    tagList.classList.add('expanded');
-    if (icon) icon.innerHTML = '<polyline points="18 15 12 9 6 15"></polyline>';
-    if (text) text.textContent = 'Fewer tags';
-  } else {
-    tagList.classList.remove('expanded');
-    if (icon) icon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
-    if (text) text.textContent = 'More tags ({{ all_tags | length - 8 }})';
-  }
-}
-
-function clearAllTags() {
-  activeTags.clear();
-  applyTagFilters(true);
+  window.history.replaceState({}, '', url);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
-  const tagsParam = params.get('tags') || params.get('tag');
-  if (tagsParam) {
-    tagsParam.split(',').filter(Boolean).forEach(t => activeTags.add(t));
+  const catParam = params.get('category');
+  if (catParam) {
+    filterCategory(catParam);
   }
-  applyTagFilters(true);
 });
 </script>
 {% endblock %}

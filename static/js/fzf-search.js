@@ -117,7 +117,7 @@
 
   function matchAndScore(item, terms, rawQuery) {
     const titleNorm = normalizeText(item.title);
-    const tagsNorm = normalizeText((item.tags || []).join(' '));
+    const catNorm = normalizeText(item.category_title || item.category || '');
     const contentNorm = normalizeText(item.content);
     const descNorm = normalizeText(item.description);
 
@@ -125,12 +125,12 @@
     for (const term of terms) {
       const termNorm = normalizeText(term);
       const inTitle = titleNorm.includes(termNorm);
-      const inTags = tagsNorm.includes(termNorm);
+      const inCat = catNorm.includes(termNorm);
       const inContent = contentNorm.includes(termNorm);
       const inDesc = descNorm.includes(termNorm);
       const inFuzzy = fuzzyMatch(termNorm, titleNorm);
 
-      if (!inTitle && !inTags && !inContent && !inDesc && !inFuzzy) {
+      if (!inTitle && !inCat && !inContent && !inDesc && !inFuzzy) {
         return 0; // Term not found anywhere in this note
       }
     }
@@ -143,8 +143,8 @@
     else if (titleNorm.startsWith(queryNorm)) score += 200;
     else if (titleNorm.includes(queryNorm)) score += 150;
 
-    // Boost exact content / tags match
-    if (tagsNorm.includes(queryNorm)) score += 100;
+    // Boost exact content / category match
+    if (catNorm.includes(queryNorm)) score += 80;
     if (descNorm.includes(queryNorm)) score += 60;
     if (contentNorm.includes(queryNorm)) score += 40;
 
@@ -154,7 +154,7 @@
       if (titleNorm.includes(termNorm)) score += 50;
       else if (fuzzyMatch(termNorm, titleNorm)) score += 20;
 
-      if (tagsNorm.includes(termNorm)) score += 30;
+      if (catNorm.includes(termNorm)) score += 30;
       if (descNorm.includes(termNorm)) score += 20;
 
       if (contentNorm.includes(termNorm)) {
@@ -192,8 +192,8 @@
 
       const titleHtml = hasQuery ? highlightTerms(item.title, currentTerms) : escapeHtml(item.title);
       
-      const primaryTag = (item.tags && item.tags.length > 0) ? `#${item.tags[0]}` : '';
-      const tagHtml = primaryTag ? `<span class="fzf-item-tag">${escapeHtml(primaryTag)}</span>` : '';
+      const catBadge = item.category_title || item.category || '';
+      const catHtml = catBadge ? `<span class="fzf-item-tag">${escapeHtml(catBadge)}</span>` : '';
 
       let snippetHtml = '';
       if (hasQuery && result.snippet) {
@@ -204,7 +204,7 @@
         <div class="fzf-item-main">
           <div class="fzf-item-header">
             <span class="fzf-item-title">${titleHtml}</span>
-            <div class="fzf-item-tags">${tagHtml}</div>
+            <div class="fzf-item-tags">${catHtml}</div>
           </div>
           ${snippetHtml}
         </div>
