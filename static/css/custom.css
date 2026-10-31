@@ -108,9 +108,23 @@ pre *, code * {
   align-items: center;
 }
 
-/* Nerd Fonts Utility */
+/* SVG Icon Utility */
+.icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -0.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* Nerd Fonts Utility (Fallback) */
 .nf {
-  font-family: "Symbols Nerd Font", "SymbolsNerdFontMono", monospace;
+  font-family: monospace;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
@@ -291,6 +305,7 @@ pre *, code * {
 }
 
 .tag-btn.reset-btn .reset-icon,
+.tag-btn.reset-btn .icon,
 .tag-btn.reset-btn .nf {
   display: inline-flex;
   align-items: center;
@@ -336,6 +351,7 @@ pre *, code * {
   color: var(--yellow) !important;
 }
 
+.tag-btn.tag-expand-btn .icon,
 .tag-btn.tag-expand-btn .nf {
   display: inline-flex;
   align-items: center;
@@ -643,6 +659,7 @@ main, article, .note-content {
   text-decoration: none !important;
 }
 
+.back-btn .icon,
 .back-btn .nf {
   display: inline-flex;
   align-items: center;
@@ -774,7 +791,10 @@ a.osd-btn.osd-btn-highlight:hover {
   color: var(--yellow) !important;
 }
 
-.osd-btn .nf {
+.osd-btn .icon,
+.osd-btn .nf,
+.osd-tab-btn .icon,
+.osd-tab-btn .nf {
   font-size: 0.9em;
   line-height: 1;
 }
@@ -941,6 +961,7 @@ a.osd-btn.active {
   color: var(--yellow) !important;
 }
 
+.load-more-btn .icon,
 .load-more-btn .nf {
   font-size: 0.85em;
   line-height: 1;
@@ -1359,3 +1380,67 @@ a.osd-btn.active {
     font-size: 14px !important;
   }
 }
+
+/* ========================================================
+   Gruvbox Minimal Syntax Highlighting (Pygments / nbconvert)
+   ======================================================== */
+.highlight, pre code, .hl-ipython3 {
+  background: #11110f !important;
+  color: #ebdbb2 !important;
+  font-family: var(--code-font) !important;
+  font-size: 0.9em;
+}
+
+.highlight *, pre code * {
+  font-style: normal !important;
+  text-decoration: none !important;
+}
+
+/* Keywords, Statements, Types (base_15) */
+.highlight .k, .highlight .kn, .highlight .kd, .highlight .kr, .highlight .kc, .highlight .kp, .highlight .kt {
+  color: #f9f5d7 !important;
+  font-weight: 500;
+}
+
+/* Strings (yellow) */
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .se, .highlight .sh, .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss {
+  color: #d8a657 !important;
+}
+
+/* Constants, Booleans, Numbers (cyan) */
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo, .highlight .il, .highlight .kc {
+  color: #89b482 !important;
+}
+
+/* Functions & Classes (green / accent) */
+.highlight .nf, .highlight .fm, .highlight .nc, .highlight .nn, .highlight .na {
+  color: #a9b665 !important;
+}
+
+/* Builtins & Identifiers (orange) */
+.highlight .nb, .highlight .bp, .highlight .no, .highlight .nd {
+  color: #e78a4e !important;
+}
+
+/* Comments (cyan / muted) */
+.highlight .c, .highlight .c1, .highlight .ch, .highlight .cm, .highlight .cp, .highlight .cpf, .highlight .cs {
+  color: #7c6f64 !important;
+}
+
+/* Operators & Delimiters (base_10) */
+.highlight .o, .highlight .ow, .highlight .p {
+  color: #bdae93 !important;
+}
+
+/* Variables & Identifiers */
+.highlight .n, .highlight .nv, .highlight .py {
+  color: #ebdbb2 !important;
+}
+
+/* Clear error borders/underlines */
+.highlight .err {
+  color: #ebdbb2 !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+

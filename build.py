@@ -55,68 +55,22 @@ def setup_markdown():
 MD = setup_markdown()
 
 def get_pygments_css():
-    return """
-/* Gruvbox Minimal Syntax Highlighting (dybdeskarphet/gruvbox-minimal.nvim) */
-.highlight, pre code, .hl-ipython3 {
-  background: #11110f !important;
-  color: #ebdbb2 !important;
-  font-family: var(--code-font) !important;
-  font-size: 0.9em;
-}
+    """Pygments CSS is moved directly into static/css/custom.css for cacheability."""
+    return ""
 
-.highlight *, pre code * {
-  font-style: normal !important;
-  text-decoration: none !important;
-}
-
-/* Keywords, Statements, Types (base_15) */
-.highlight .k, .highlight .kn, .highlight .kd, .highlight .kr, .highlight .kc, .highlight .kp, .highlight .kt {
-  color: #f9f5d7 !important;
-  font-weight: 500;
-}
-
-/* Strings (yellow) */
-.highlight .s, .highlight .s1, .highlight .s2, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .se, .highlight .sh, .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss {
-  color: #d8a657 !important;
-}
-
-/* Constants, Booleans, Numbers (cyan) */
-.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo, .highlight .il, .highlight .kc {
-  color: #89b482 !important;
-}
-
-/* Functions & Classes (green / accent) */
-.highlight .nf, .highlight .fm, .highlight .nc, .highlight .nn, .highlight .na {
-  color: #a9b665 !important;
-}
-
-/* Builtins & Identifiers (orange) */
-.highlight .nb, .highlight .bp, .highlight .no, .highlight .nd {
-  color: #e78a4e !important;
-}
-
-/* Comments (cyan / muted) */
-.highlight .c, .highlight .c1, .highlight .ch, .highlight .cm, .highlight .cp, .highlight .cpf, .highlight .cs {
-  color: #7c6f64 !important;
-}
-
-/* Operators & Delimiters (base_10) */
-.highlight .o, .highlight .ow, .highlight .p {
-  color: #bdae93 !important;
-}
-
-/* Variables & Identifiers */
-.highlight .n, .highlight .nv, .highlight .py {
-  color: #ebdbb2 !important;
-}
-
-/* Clear error borders/underlines */
-.highlight .err {
-  color: #ebdbb2 !important;
-  background-color: transparent !important;
-  border: none !important;
-}
-"""
+def check_has_math(raw_text: str, html_content: str, meta: dict) -> bool:
+    """Check if note has math equations and requires MathJax."""
+    if "math" in meta:
+        return bool(meta["math"])
+    if "$$" in raw_text or "\\[" in raw_text or "\\(" in raw_text:
+        return True
+    if re.search(r"\\begin\{(?:equation|align|gather|matrix|bmatrix|pmatrix|cases)\}", raw_text):
+        return True
+    # Strip code and pre tags to avoid false positives inside code blocks
+    content_no_code = re.sub(r"<(?:pre|code)[^>]*>[\s\S]*?<\/(?:pre|code)>", "", html_content)
+    if re.search(r"(?<!\\)\$(?!\s)[^\$\n]+?(?<!\s)(?<!\\)\$", content_no_code):
+        return True
+    return False
 
 def extract_yaml_frontmatter(text):
     """Extract YAML frontmatter from string if present."""
@@ -199,6 +153,8 @@ def parse_md_file(file_path: Path):
             new_h = f"<h{level} id='{slug}'>{h_text}</h{level}>"
             html_content = html_content.replace(old_h, new_h, 1)
 
+    has_math = check_has_math(content, html_content, meta)
+
     return {
         "title": title,
         "date": str(meta["date"]) if meta.get("date") else None,
@@ -209,6 +165,7 @@ def parse_md_file(file_path: Path):
         "html_content": html_content,
         "seadragon_images": seadragon_images,
         "raw_text": search_text,
+        "has_math": has_math,
         "format": ".md"
     }
 
@@ -275,6 +232,8 @@ def parse_py_file(file_path: Path, execute: bool = True):
         search_text = plain_text
     excerpt = desc or (plain_text[:160] + "..." if len(plain_text) > 160 else plain_text)
 
+    has_math = check_has_math(raw_text, body, meta)
+
     return {
         "title": title,
         "date": str(meta["date"]) if meta.get("date") else None,
@@ -284,6 +243,7 @@ def parse_py_file(file_path: Path, execute: bool = True):
         "toc": "",
         "html_content": body,
         "raw_text": search_text,
+        "has_math": has_math,
         "format": ".py"
     }
 
@@ -318,6 +278,8 @@ def parse_ipynb_file(file_path: Path):
         search_text = plain_text
     excerpt = desc or (plain_text[:160] + "..." if len(plain_text) > 160 else plain_text)
 
+    has_math = check_has_math(json.dumps(nb), body, meta)
+
     return {
         "title": title,
         "date": meta.get("date"),
@@ -327,6 +289,7 @@ def parse_ipynb_file(file_path: Path):
         "toc": "",
         "html_content": body,
         "raw_text": search_text,
+        "has_math": has_math,
         "format": ".ipynb"
     }
 
@@ -402,8 +365,9 @@ def build_wiki(execute: bool = True):
         rendered_note = note_template.render(
             site_title=SITE_TITLE,
             site_description=SITE_DESCRIPTION,
-            pygments_css=pygments_css,
+            pygments_css="",
             root_prefix=root_prefix,
+            has_math=note_data.get("has_math", False),
             note=note_data
         )
         dest_html.write_text(rendered_note, encoding="utf-8")
@@ -419,8 +383,9 @@ def build_wiki(execute: bool = True):
     rendered_index = index_template.render(
         site_title=SITE_TITLE,
         site_description=SITE_DESCRIPTION,
-        pygments_css=pygments_css,
+        pygments_css="",
         root_prefix=".",
+        has_math=False,
         notes=notes,
         categories=categories_count,
         all_tags=all_tags_sorted

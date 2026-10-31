@@ -14,15 +14,9 @@
   <link rel="stylesheet" href="{{ root_prefix }}/css/sakura-dark.css">
   <link rel="stylesheet" href="{{ root_prefix }}/css/custom.css">
 
-  <!-- Nerd Fonts Symbols (WebFont) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mshaugh/nerdfont-webfonts@v3.3.0/build/symbols-nerd-font.css">
-
-  <!-- Pygments Syntax Highlighting CSS -->
-  <style>
-    {{ pygments_css }}
-  </style>
-
-  <!-- MathJax for Mathematics (Stats & Data Science) -->
+  {% block mathjax %}
+  {% if has_math %}
+  <!-- MathJax for Mathematics (Loaded conditionally when math is present) -->
   <script>
     MathJax = {
       tex: {
@@ -37,6 +31,8 @@
   <script type="text/javascript" id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
+  {% endif %}
+  {% endblock %}
 </head>
 <body data-root="{{ root_prefix }}">
 
@@ -48,7 +44,7 @@
 
     <div class="nav-actions">
       <button id="search-trigger-btn" class="search-trigger" title="Quick Search (or press /)">
-        <span class="nf search-btn-icon">&#xF002;</span>
+        <svg class="icon search-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <span>Search</span>
         <kbd>/</kbd>
       </button>

@@ -13,7 +13,7 @@
     <div class="note-meta">
       {% if note.date %}
       <span class="note-meta-date">
-        <span class="nf meta-date-icon">&#xF073;</span>
+        <svg class="icon meta-date-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         <time datetime="{{ note.date }}">{{ note.date }}</time>
       </span>
       {% endif %}
@@ -50,7 +50,7 @@
       <div class="osd-selector-bar">
         {% for img in note.seadragon_images %}
         <button type="button" class="osd-tab-btn{% if loop.first %} active{% endif %}" onclick="switchOsdImage({{ loop.index0 }})">
-          <span class="nf">&#xF03E;</span> {{ img.title }}
+          <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> {{ img.title }}
         </button>
         {% endfor %}
       </div>
@@ -61,22 +61,22 @@
       <div class="osd-toolbar">
         <div class="osd-toolbar-group">
           <button type="button" id="osd-zoom-in" class="osd-btn" title="Zoom In (+)">
-            <span class="nf">&#xF00E;</span> Zoom In
+            <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Zoom In
           </button>
           <button type="button" id="osd-zoom-out" class="osd-btn" title="Zoom Out (-)">
-            <span class="nf">&#xF010;</span> Zoom Out
+            <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Zoom Out
           </button>
           <button type="button" id="osd-reset" class="osd-btn" title="Reset View">
-            <span class="nf">&#xF0E2;</span> Reset
+            <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg> Reset
           </button>
         </div>
 
         <div class="osd-toolbar-group">
           <a id="osd-download" class="osd-btn" title="Download Image" download href="{{ note.seadragon_images[0].src }}" target="_blank">
-            <span class="nf">&#xF019;</span> Download
+            <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download
           </a>
           <button type="button" id="osd-fullscreen" class="osd-btn osd-btn-highlight" title="Toggle Full Page (or press Esc)">
-            <span class="nf" id="osd-fs-icon">&#xF0B2;</span> <span id="osd-fs-text">Full Page</span>
+            <svg class="icon" id="osd-fs-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> <span id="osd-fs-text">Full Page</span>
           </button>
         </div>
       </div>
@@ -88,7 +88,7 @@
 
   <!-- Bottom Back Navigation Button -->
   <div class="note-footer-nav">
-    <a href="{{ root_prefix }}/index.html" class="back-btn"><span class="nf">&#xF060;</span> Back to Index</a>
+    <a href="{{ root_prefix }}/index.html" class="back-btn"><svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Index</a>
   </div>
 </article>
 {% endblock %}
@@ -174,11 +174,11 @@
     const fsBtn = document.getElementById("osd-fullscreen");
 
     if (isFull) {
-      if (fsIcon) fsIcon.innerHTML = "&#xF066;";
+      if (fsIcon) fsIcon.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
       if (fsText) fsText.textContent = "Exit Full Page";
       if (fsBtn) fsBtn.classList.add("active");
     } else {
-      if (fsIcon) fsIcon.innerHTML = "&#xF0B2;";
+      if (fsIcon) fsIcon.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
       if (fsText) fsText.textContent = "Full Page";
       if (fsBtn) fsBtn.classList.remove("active");
     }

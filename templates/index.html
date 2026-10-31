@@ -13,13 +13,13 @@
 
   {% if all_tags | length > 8 %}
   <button type="button" id="toggle-tags-btn" class="tag-btn tag-expand-btn" onclick="toggleTagsExpand()">
-    <span class="nf" id="toggle-tags-icon">&#xF078;</span>
+    <svg class="icon" id="toggle-tags-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
     <span id="toggle-tags-text">More tags ({{ all_tags | length - 8 }})</span>
   </button>
   {% endif %}
 
   <button type="button" id="clear-all-btn" class="tag-btn reset-btn" onclick="clearAllTags()">
-    <span class="nf reset-icon">&#xF00D;</span><span class="reset-text">Reset (<span id="active-tag-count">0</span>)</span>
+    <svg class="icon reset-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg><span class="reset-text">Reset (<span id="active-tag-count">0</span>)</span>
   </button>
 </div>
 
@@ -54,7 +54,7 @@
 <!-- Progressive Loading / Pagination Container -->
 <div id="pagination-container" class="pagination-container">
   <button type="button" id="load-more-btn" class="load-more-btn" style="display: none;" onclick="loadMoreNotes()">
-    <span class="nf">&#xF078;</span> <span id="load-more-text">Show 25 more</span> (<span id="load-more-remaining">0</span> remaining)
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg> <span id="load-more-text">Show 25 more</span> (<span id="load-more-remaining">0</span> remaining)
   </button>
   <div id="no-notes-msg" class="no-notes-msg" style="display: none;">
     No notes match the selected tags.
@@ -180,11 +180,11 @@ function toggleTagsExpand() {
   if (!tagList) return;
   if (tagsExpanded) {
     tagList.classList.add('expanded');
-    if (icon) icon.innerHTML = '&#xF077;';
+    if (icon) icon.innerHTML = '<polyline points="18 15 12 9 6 15"></polyline>';
     if (text) text.textContent = 'Fewer tags';
   } else {
     tagList.classList.remove('expanded');
-    if (icon) icon.innerHTML = '&#xF078;';
+    if (icon) icon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
     if (text) text.textContent = 'More tags ({{ all_tags | length - 8 }})';
   }
 }
