@@ -159,7 +159,7 @@ plt.show()
 r"""
 ## What if we didn't cheat on selecting the centroids?
 
-In the above example, to make it easier to understand, we specifically chose clusters that are the same as the ones we initially used to generate the data. However, under normal circumstances, we would have no information about where the correct centers should be.
+In the above example, to make it easier to understand, we specifically chose centers that are the same as the ones we initially used to generate the data. However, under normal circumstances, we would have no information about where the correct centers should be.
 
 There are several ways to determine the centers, but for this example, we’ll use the K-means++ algorithm.
 """
